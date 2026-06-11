@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Carrier Sales Dashboard</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%231d6b4f'/%3E%3Cpath d='M17 37h30l-5 10H12l5-10Zm9-18h26l-5 10H21l5-10Z' fill='%23fff6e8'/%3E%3Ccircle cx='22' cy='46' r='4' fill='%23f3efe5'/%3E%3Ccircle cx='42' cy='46' r='4' fill='%23f3efe5'/%3E%3C/svg%3E"
+    />
+    <style>
+      :root {
+        --bg: #f3efe5;
+        --panel: rgba(255, 252, 246, 0.88);
+        --ink: #18261d;
+        --muted: #5f6d61;
+        --line: rgba(24, 38, 29, 0.12);
+        --accent: #1d6b4f;
+        --accent-soft: #dceee4;
+        --warn: #b4602c;
+        --danger: #8e3b31;
+        --shadow: 0 24px 60px rgba(24, 38, 29, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Avenir Next", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(29, 107, 79, 0.18), transparent 32%),
+          radial-gradient(circle at top right, rgba(180, 96, 44, 0.14), transparent 28%),
+          linear-gradient(180deg, #f8f4eb 0%, var(--bg) 100%);
+      }
+
+      .shell {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 20px 48px;
+      }
+
+      .hero {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: 1.4fr 0.9fr;
+        align-items: end;
+        margin-bottom: 24px;
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-family: Charter, "Iowan Old Style", "Palatino Linotype", serif;
+        font-size: clamp(2.6rem, 6vw, 4.6rem);
+        line-height: 0.96;
+        letter-spacing: -0.04em;
+      }
+
+      .hero p {
+        margin: 12px 0 0;
+        max-width: 56ch;
+        color: var(--muted);
+        font-size: 1.05rem;
+      }
+
+      .auth-panel,
+      .panel {
+        background: var(--panel);
+        backdrop-filter: blur(18px);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .auth-panel {
+        padding: 18px;
+      }
+
+      .auth-panel label {
+        display: block;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .auth-row {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 10px;
+      }
+
+      input {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px 16px;
+        font: inherit;
+        background: rgba(255, 255, 255, 0.72);
+      }
+
+      button {
+        border: 0;
+        border-radius: 14px;
+        padding: 14px 18px;
+        font: inherit;
+        font-weight: 700;
+        color: white;
+        background: var(--accent);
+        cursor: pointer;
+      }
+
+      .button-secondary {
+        color: var(--ink);
+        background: rgba(24, 38, 29, 0.08);
+      }
+
+      .status {
+        margin-top: 10px;
+        min-height: 20px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .grid {
+        display: grid;
+        gap: 18px;
+      }
+
+      .kpis {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        margin-bottom: 18px;
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      .eyebrow {
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .value {
+        margin-top: 10px;
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .subvalue {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .panels {
+        grid-template-columns: 1.15fr 0.85fr;
+      }
+
+      .feature-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .panel {
+        padding: 20px;
+      }
+
+      .panel h2 {
+        margin: 0 0 16px;
+        font-size: 1.05rem;
+        letter-spacing: -0.02em;
+      }
+
+      .bars {
+        display: grid;
+        gap: 12px;
+      }
+
+      .bar-row {
+        display: grid;
+        gap: 6px;
+      }
+
+      .bar-label {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 0.92rem;
+      }
+
+      .bar-track {
+        height: 12px;
+        border-radius: 999px;
+        background: rgba(24, 38, 29, 0.08);
+        overflow: hidden;
+      }
+
+      .bar-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--accent), #70b78d);
+      }
+
+      .lane-fill {
+        background: linear-gradient(90deg, var(--warn), #e2b180);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 12px 10px;
+        border-bottom: 1px solid var(--line);
+        font-size: 0.94rem;
+      }
+
+      th {
+        color: var(--muted);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--accent);
+      }
+
+      .sentiment-positive { color: var(--accent); }
+      .sentiment-negative { color: var(--danger); }
+      .sentiment-neutral { color: var(--warn); }
+
+      .empty {
+        color: var(--muted);
+        padding: 16px 0;
+      }
+
+      .scatter-wrap {
+        display: grid;
+        gap: 10px;
+      }
+
+      .scatter-meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .scatter-board {
+        width: 100%;
+        height: auto;
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(29, 107, 79, 0.06), rgba(180, 96, 44, 0.04));
+        border: 1px solid var(--line);
+      }
+
+      .legend {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        font-size: 0.86rem;
+        color: var(--muted);
+      }
+
+      .legend span::before {
+        content: "";
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        margin-right: 8px;
+      }
+
+      .legend .booked::before { background: var(--accent); }
+      .legend .transferred::before { background: var(--warn); }
+      .legend .other::before { background: var(--danger); }
+
+      @media (max-width: 960px) {
+        .hero,
+        .panels,
+        .kpis,
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .auth-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <section class="hero">
+        <div>
+          <h1>Carrier Sales<br />Command Deck</h1>
+          <p>
+            Track booked freight, negotiation behavior, sentiment, and lane demand from the
+            call-complete webhook in one place.
+          </p>
+        </div>
+        <div class="auth-panel">
+          <label for="api-key">API key for metrics endpoints</label>
+          <div class="auth-row">
+            <input id="api-key" type="password" placeholder="Enter X-API-Key" />
+            <button id="refresh">Refresh</button>
+            <button id="flush" class="button-secondary">Flush Metrics</button>
+          </div>
+          <div class="status" id="status">Enter the API key used by your workflow.</div>
+        </div>
+      </section>
+
+      <section class="grid kpis">
+        <div class="panel card"><div class="eyebrow">Total Calls</div><div class="value" id="kpi-total">-</div><div class="subvalue">Webhook records in RDS</div></div>
+        <div class="panel card"><div class="eyebrow">Booking Rate</div><div class="value" id="kpi-booking">-</div><div class="subvalue">Booked calls / total calls</div></div>
+        <div class="panel card"><div class="eyebrow">Avg Negotiation</div><div class="value" id="kpi-rounds">-</div><div class="subvalue">Rounds per call</div></div>
+        <div class="panel card"><div class="eyebrow">Avg Duration</div><div class="value" id="kpi-duration">-</div><div class="subvalue">Seconds on call</div></div>
+        <div class="panel card"><div class="eyebrow">Rate Delta</div><div class="value" id="kpi-delta">-</div><div class="subvalue">Final minus loadboard</div></div>
+      </section>
+
+      <section class="grid feature-grid" style="margin-bottom: 18px;">
+        <div class="panel">
+          <h2>Outcome Mix</h2>
+          <div class="bars" id="outcomes"></div>
+        </div>
+        <div class="panel">
+          <h2>Negotiation Pressure Map</h2>
+          <div class="scatter-wrap">
+            <div class="scatter-meta">
+              <span>Y axis: final rate</span>
+              <span>X axis: negotiation rounds</span>
+            </div>
+            <svg id="scatterplot" class="scatter-board" viewBox="0 0 520 260" preserveAspectRatio="none"></svg>
+            <div class="legend">
+              <span class="booked">Booked</span>
+              <span class="transferred">Transferred</span>
+              <span class="other">Rejected / no match</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid panels">
+        <div class="panel">
+          <h2>Top Lanes</h2>
+          <div class="bars" id="lanes"></div>
+        </div>
+        <div class="panel">
+          <h2>Sentiment</h2>
+          <div class="bars" id="sentiments"></div>
+        </div>
+        <div class="panel" style="grid-column: 1 / -1;">
+          <h2>Recent Calls</h2>
+          <div id="recent-wrap"></div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const apiKeyInput = document.getElementById("api-key");
+      const refreshButton = document.getElementById("refresh");
+      const flushButton = document.getElementById("flush");
+      const statusNode = document.getElementById("status");
+
+      const storedKey = window.localStorage.getItem("carrier-sales-api-key");
+      if (storedKey) {
+        apiKeyInput.value = storedKey;
+      }
+
+      function formatNumber(value, suffix = "") {
+        if (value === null || value === undefined || Number.isNaN(Number(value))) {
+          return "-";
+        }
+        return `${Number(value).toLocaleString()}${suffix}`;
+      }
+
+      function renderBars(targetId, items, className = "") {
+        const target = document.getElementById(targetId);
+        target.innerHTML = "";
+
+        if (!items || !items.length) {
+          target.innerHTML = '<div class="empty">No data yet.</div>';
+          return;
+        }
+
+        const max = Math.max(...items.map((item) => item.value), 1);
+        for (const item of items) {
+          const row = document.createElement("div");
+          row.className = "bar-row";
+          row.innerHTML = `
+            <div class="bar-label"><span>${item.label}</span><strong>${item.value}</strong></div>
+            <div class="bar-track"><div class="bar-fill ${className}" style="width:${(item.value / max) * 100}%"></div></div>
+          `;
+          target.appendChild(row);
+        }
+      }
+
+      function renderRecentCalls(calls) {
+        const wrap = document.getElementById("recent-wrap");
+        if (!calls || !calls.length) {
+          wrap.innerHTML = '<div class="empty">No completed calls have been posted yet.</div>';
+          return;
+        }
+
+        const rows = calls
+          .map((call) => {
+            const sentimentClass = call.sentiment ? `sentiment-${call.sentiment}` : "";
+            return `
+              <tr>
+                <td>${call.carrier_name || "Unknown carrier"}</td>
+                <td><span class="pill">${call.outcome || "unknown"}</span></td>
+                <td class="${sentimentClass}">${call.sentiment || "-"}</td>
+                <td>${call.load_id || "-"}</td>
+                <td>${call.final_rate ? `$${Number(call.final_rate).toLocaleString()}` : "-"}</td>
+              </tr>
+            `;
+          })
+          .join("");
+
+        wrap.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Carrier</th>
+                <th>Outcome</th>
+                <th>Sentiment</th>
+                <th>Load</th>
+                <th>Final rate</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        `;
+      }
+
+      function renderScatterPlot(calls) {
+        const svg = document.getElementById("scatterplot");
+        const filtered = (calls || []).filter(
+          (call) => typeof call.negotiation_rounds === "number" && typeof call.final_rate === "number"
+        );
+
+        if (!filtered.length) {
+          svg.innerHTML = '<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#5f6d61" font-size="16">No rate and negotiation data yet.</text>';
+          return;
+        }
+
+        const width = 520;
+        const height = 260;
+        const padLeft = 46;
+        const padBottom = 28;
+        const padTop = 18;
+        const padRight = 16;
+        const maxRounds = Math.max(...filtered.map((call) => call.negotiation_rounds), 1);
+        const minRate = Math.min(...filtered.map((call) => call.final_rate));
+        const maxRate = Math.max(...filtered.map((call) => call.final_rate), minRate + 1);
+
+        const grid = [];
+        for (let tick = 0; tick <= 4; tick += 1) {
+          const y = padTop + ((height - padTop - padBottom) * tick) / 4;
+          const rate = Math.round(maxRate - ((maxRate - minRate) * tick) / 4);
+          grid.push(`<line x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" stroke="rgba(24,38,29,0.12)" />`);
+          grid.push(`<text x="10" y="${y + 4}" fill="#5f6d61" font-size="11">$${rate}</text>`);
+        }
+
+        for (let tick = 0; tick <= maxRounds; tick += 1) {
+          const x = padLeft + ((width - padLeft - padRight) * tick) / Math.max(maxRounds, 1);
+          grid.push(`<line x1="${x}" y1="${padTop}" x2="${x}" y2="${height - padBottom}" stroke="rgba(24,38,29,0.08)" />`);
+          grid.push(`<text x="${x}" y="${height - 8}" text-anchor="middle" fill="#5f6d61" font-size="11">${tick}</text>`);
+        }
+
+        const dots = filtered.map((call) => {
+          const x = padLeft + ((width - padLeft - padRight) * call.negotiation_rounds) / Math.max(maxRounds, 1);
+          const y =
+            padTop +
+            ((height - padTop - padBottom) * (maxRate - call.final_rate)) / Math.max(maxRate - minRate, 1);
+          const color =
+            call.outcome === "booked"
+              ? "#1d6b4f"
+              : call.outcome === "transferred"
+                ? "#b4602c"
+                : "#8e3b31";
+          const label = `${call.carrier_name || "Unknown"} | ${call.outcome || "unknown"} | $${call.final_rate}`;
+          return `<g><title>${label}</title><circle cx="${x}" cy="${y}" r="7" fill="${color}" fill-opacity="0.82" stroke="#fff" stroke-width="2" /></g>`;
+        });
+
+        svg.innerHTML = `
+          <rect x="0" y="0" width="${width}" height="${height}" rx="18" fill="transparent"></rect>
+          ${grid.join("")}
+          <line x1="${padLeft}" y1="${height - padBottom}" x2="${width - padRight}" y2="${height - padBottom}" stroke="#1d2a38" />
+          <line x1="${padLeft}" y1="${padTop}" x2="${padLeft}" y2="${height - padBottom}" stroke="#1d2a38" />
+          ${dots.join("")}
+        `;
+      }
+
+      async function flushMetrics() {
+        const apiKey = apiKeyInput.value.trim();
+        if (!apiKey) {
+          statusNode.textContent = "Enter the API key first.";
+          return;
+        }
+
+        if (!window.confirm("Delete all stored call metrics from the dashboard database?")) {
+          return;
+        }
+
+        statusNode.textContent = "Flushing metrics...";
+        try {
+          const response = await fetch("/metrics/flush", {
+            method: "DELETE",
+            headers: {
+              "X-API-Key": apiKey,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`Flush failed with ${response.status}`);
+          }
+
+          await refreshDashboard();
+          statusNode.textContent = "Metrics cleared.";
+        } catch (error) {
+          statusNode.textContent = error.message;
+        }
+      }
+
+      async function refreshDashboard() {
+        const apiKey = apiKeyInput.value.trim();
+        if (!apiKey) {
+          statusNode.textContent = "Enter the API key first.";
+          return;
+        }
+
+        window.localStorage.setItem("carrier-sales-api-key", apiKey);
+        statusNode.textContent = "Loading metrics...";
+
+        try {
+          const response = await fetch("/metrics/dashboard", {
+            headers: {
+              "X-API-Key": apiKey,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`Metrics request failed with ${response.status}`);
+          }
+
+          const payload = await response.json();
+          document.getElementById("kpi-total").textContent = formatNumber(payload.kpis.total_calls);
+          document.getElementById("kpi-booking").textContent = formatNumber(payload.kpis.booking_rate, "%");
+          document.getElementById("kpi-rounds").textContent = formatNumber(payload.kpis.avg_negotiation_rounds);
+          document.getElementById("kpi-duration").textContent = formatNumber(payload.kpis.avg_call_duration_seconds, "s");
+          document.getElementById("kpi-delta").textContent = `$${formatNumber(payload.kpis.avg_rate_delta)}`;
+
+          renderBars("outcomes", payload.outcomes);
+          renderBars("sentiments", payload.sentiments);
+          renderBars("lanes", payload.top_lanes, "lane-fill");
+          renderRecentCalls(payload.recent_calls);
+          renderScatterPlot(payload.recent_calls);
+
+          statusNode.textContent = "Dashboard refreshed.";
+        } catch (error) {
+          statusNode.textContent = error.message;
+        }
+      }
+
+      refreshButton.addEventListener("click", refreshDashboard);
+      flushButton.addEventListener("click", flushMetrics);
+      if (storedKey) {
+        refreshDashboard();
+      }
+    </script>
+  </body>
+</html>
