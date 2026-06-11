@@ -9,7 +9,7 @@ This guide sets up the backend on AWS with:
 - ECS Fargate for the API service
 - ALB for a public URL
 
-Account ID is prefilled as `696741019085`.
+
 
 ## Prerequisites
 
@@ -48,8 +48,7 @@ Use this order to reproduce the deployment from scratch:
 Run these in your shell first and replace the placeholder values:
 
 ```bash
-export ACCOUNT_ID=696741019085
-export AWS_REGION=us-east-2
+export ACCOUNT_ID=###########
 
 export VPC_ID=vpc-xxxxxxxx
 export PUBLIC_SUBNET_1=subnet-public1
